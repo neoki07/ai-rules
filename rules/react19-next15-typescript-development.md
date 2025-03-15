@@ -111,23 +111,6 @@ export function UserProfilePresenter({ user }: { user: User }) {
   // Interactive UI implementation
   return <div>{/* UI implementation */}</div>;
 }
-```tsx
-// Server Component (Container)
-import { UserProfilePresenter } from './UserProfile.presenter';
-
-export async function UserProfile({ userId }: { userId: string }) {
-  const user = await fetchUser(userId);
-  
-  return <UserProfilePresenter user={user} />;
-}
-
-// Client Component (Presenter)
-'use client';
-
-export function UserProfilePresenter({ user }: { user: User }) {
-  // Interactive UI implementation
-  return <div>{/* UI implementation */}</div>;
-}
 ```
 
 ## コード構造
@@ -165,6 +148,103 @@ src/
 3. **コロケーション**: 関連するコードが近くに配置され、コンテキストの理解と保守が容易に
 4. **スケーラビリティ**: 機能の増加に伴って自然に構造化が進む
 5. **再利用性**: グローバルに再利用されるコンポーネントとユーティリティはルート外に配置
+
+### コンポーネントの共通化と再利用
+
+- 2箇所以上で同じUIパターンが使用される場合は、共通コンポーネントに抽出する
+- 共通コンポーネントは、`components/ui` ディレクトリに配置
+- 複数の機能で共通利用されるコンポーネントは、`components/shared` ディレクトリに配置
+
+#### 共通コンポーネントの設計原則
+
+- **単一責任**: 一つのコンポーネントは一つの責任のみを持つ
+- **高い凝集性**: 関連する機能のみをまとめる
+- **低い結合度**: 他のコンポーネントやグローバル状態への依存を最小限に抑える
+- **明確なインターフェース**: Propsの型定義を明確に行う
+
+```tsx
+// components/ui/Button.tsx
+import { type ButtonHTMLAttributes, forwardRef } from 'react';
+import { cn } from '@/lib/utils';
+
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  isLoading?: boolean;
+}
+
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant = 'primary', size = 'md', isLoading, children, ...props }, ref) => {
+    return (
+      <button
+        className={cn(
+          'button-base',
+          {
+            'bg-blue-600 text-white': variant === 'primary',
+            'bg-gray-200 text-gray-800': variant === 'secondary',
+            'border border-gray-300 bg-transparent': variant === 'outline',
+            'bg-transparent': variant === 'ghost',
+            'p-1 text-sm': size === 'sm',
+            'p-2': size === 'md',
+            'p-3 text-lg': size === 'lg',
+            'opacity-70 cursor-not-allowed': isLoading,
+          },
+          className
+        )}
+        disabled={isLoading ?? props.disabled}
+        ref={ref}
+        {...props}
+      >
+        {isLoading ? <span className="loading-indicator" /> : null}
+        {children}
+      </button>
+    );
+  }
+);
+Button.displayName = 'Button';
+
+export { Button, type ButtonProps }
+```
+
+#### コンポーネントライブラリの作成
+
+プロジェクトが大規模化する場合は、内部コンポーネントライブラリの作成を検討：
+
+1. 各UIコンポーネントに対して：
+   - Presenterとして実装（純粋なUI表示に特化）
+   - Storybookでのドキュメント化
+   - ユニットテストの作成
+
+2. 定期的なコンポーネントレビューを行い、以下を確認：
+   - 不要な重複がないか
+   - コンポーネントインターフェースの一貫性
+   - アクセシビリティ対応
+   - レスポンシブ対応
+
+3. 新機能開発時は、既存の共通コンポーネントの使用を優先し、必要に応じて拡張
+
+#### 既存コンポーネントの活用例
+
+```tsx
+// Component usage within individual page components
+import { Button } from '@/components/ui/Button';
+
+function SubmitForm() {
+  const handleSubmit = async () => {
+    // Submit logic
+  };
+  
+  return (
+    <form>
+      {/* Form fields */}
+      <div className="mt-4 flex justify-end">
+        <Button variant="outline" className="mr-2">Cancel</Button>
+        <Button type="submit" onClick={handleSubmit}>Submit</Button>
+      </div>
+    </form>
+  );
+}
+```
 
 ### アンダースコアプレフィックスのディレクトリ規約
 
@@ -820,6 +900,9 @@ bun run quality # Run linter, type check, and tests
 - [ ] コード重複はないか
 - [ ] 副作用は適切に管理されているか
 - [ ] デバッグ用コード（console.logなど）は削除されているか
+- [ ] 共通化できるUIコンポーネントが適切に抽出されているか
+- [ ] UIコンポーネントが再利用可能な形で設計されているか
+- [ ] コンポーネントのインターフェースが明確に型定義されているか
 
 ## Git ワークフロー
 
