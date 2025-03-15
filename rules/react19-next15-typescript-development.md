@@ -47,6 +47,7 @@ TDDは以下のサイクルで進める開発手法です：
 ```
 
 例：
+
 - "When submitting a valid form, it should save data successfully"
 - "When token is invalid, it should return authentication error"
 
@@ -96,16 +97,16 @@ components/
 
 ```tsx
 // Server Component (Container)
-import { UserProfilePresenter } from './UserProfile.presenter';
+import { UserProfilePresenter } from "./UserProfile.presenter";
 
 export async function UserProfile({ userId }: { userId: string }) {
   const user = await fetchUser(userId);
-  
+
   return <UserProfilePresenter user={user} />;
 }
 
 // Client Component (Presenter)
-'use client';
+"use client";
 
 export function UserProfilePresenter({ user }: { user: User }) {
   // Interactive UI implementation
@@ -164,32 +165,42 @@ src/
 
 ```tsx
 // components/ui/Button.tsx
-import { type ButtonHTMLAttributes, forwardRef } from 'react';
-import { cn } from '@/lib/utils';
+import { type ButtonHTMLAttributes, forwardRef } from "react";
+import { cn } from "@/lib/utils";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
   isLoading?: boolean;
-}
+};
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', isLoading, children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant = "primary",
+      size = "md",
+      isLoading,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
     return (
       <button
         className={cn(
-          'button-base',
+          "button-base",
           {
-            'bg-blue-600 text-white': variant === 'primary',
-            'bg-gray-200 text-gray-800': variant === 'secondary',
-            'border border-gray-300 bg-transparent': variant === 'outline',
-            'bg-transparent': variant === 'ghost',
-            'p-1 text-sm': size === 'sm',
-            'p-2': size === 'md',
-            'p-3 text-lg': size === 'lg',
-            'opacity-70 cursor-not-allowed': isLoading,
+            "bg-blue-600 text-white": variant === "primary",
+            "bg-gray-200 text-gray-800": variant === "secondary",
+            "border border-gray-300 bg-transparent": variant === "outline",
+            "bg-transparent": variant === "ghost",
+            "p-1 text-sm": size === "sm",
+            "p-2": size === "md",
+            "p-3 text-lg": size === "lg",
+            "cursor-not-allowed opacity-70": isLoading,
           },
-          className
+          className,
         )}
         disabled={isLoading ?? props.disabled}
         ref={ref}
@@ -199,11 +210,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
-  }
+  },
 );
-Button.displayName = 'Button';
+Button.displayName = "Button";
 
-export { Button, type ButtonProps }
+export { Button, type ButtonProps };
 ```
 
 #### コンポーネントライブラリの作成
@@ -211,11 +222,13 @@ export { Button, type ButtonProps }
 プロジェクトが大規模化する場合は、内部コンポーネントライブラリの作成を検討：
 
 1. 各UIコンポーネントに対して：
+
    - Presenterとして実装（純粋なUI表示に特化）
    - Storybookでのドキュメント化
    - ユニットテストの作成
 
 2. 定期的なコンポーネントレビューを行い、以下を確認：
+
    - 不要な重複がないか
    - コンポーネントインターフェースの一貫性
    - アクセシビリティ対応
@@ -227,19 +240,23 @@ export { Button, type ButtonProps }
 
 ```tsx
 // Component usage within individual page components
-import { Button } from '@/components/ui/Button';
+import { Button } from "@/components/ui/Button";
 
 function SubmitForm() {
   const handleSubmit = async () => {
     // Submit logic
   };
-  
+
   return (
     <form>
       {/* Form fields */}
       <div className="mt-4 flex justify-end">
-        <Button variant="outline" className="mr-2">Cancel</Button>
-        <Button type="submit" onClick={handleSubmit}>Submit</Button>
+        <Button variant="outline" className="mr-2">
+          Cancel
+        </Button>
+        <Button type="submit" onClick={handleSubmit}>
+          Submit
+        </Button>
       </div>
     </form>
   );
@@ -259,8 +276,8 @@ function SubmitForm() {
 
 ```tsx
 // app/(routes)/users/[id]/_components/user-details.tsx
-import { UserDetailsPresenter } from './user-details.presenter';
-import { getUser } from '../_queries/get-user';
+import { UserDetailsPresenter } from "./user-details.presenter";
+import { getUser } from "../_queries/get-user";
 
 export async function UserDetails({ userId }: { userId: string }) {
   const user = await getUser(userId);
@@ -268,16 +285,16 @@ export async function UserDetails({ userId }: { userId: string }) {
 }
 
 // app/(routes)/users/[id]/_queries/get-user.ts
-import { db } from '@/lib/db';
+import { db } from "@/lib/db";
 
 export async function getUser(id: string) {
   return db.user.findUnique({ where: { id } });
 }
 
 // app/(routes)/users/[id]/_actions/update-user.ts
-'use server';
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
+"use server";
+import { revalidatePath } from "next/cache";
+import { db } from "@/lib/db";
 
 export async function updateUser(id: string, data: UserUpdateData) {
   await db.user.update({ where: { id }, data });
@@ -285,7 +302,7 @@ export async function updateUser(id: string, data: UserUpdateData) {
 }
 
 // app/(routes)/users/[id]/page.tsx
-import { UserDetails } from './_components/user-details';
+import { UserDetails } from "./_components/user-details";
 
 export default function UserPage({ params }: { params: { id: string } }) {
   return <UserDetails userId={params.id} />;
@@ -294,7 +311,8 @@ export default function UserPage({ params }: { params: { id: string } }) {
 
 ### 命名規則
 
-- **ファイル**: 
+- **ファイル**:
+
   - コンポーネント: kebab-case.tsx
   - ユーティリティ: kebab-case.ts
   - テスト: *.test.tsx
@@ -344,9 +362,9 @@ function createUserId(id: string): UserId {
 function UserProfile({ user }: UserProfileProps) {
   const handleClick = () => {
     // Event handler with arrow function
-    console.log('Clicked');
+    console.log("Clicked");
   };
-  
+
   return <button onClick={handleClick}>View Profile</button>;
 }
 
@@ -356,7 +374,7 @@ const UserProfile = ({ user }: UserProfileProps) => {
   function handleClick() {
     // Regular function declaration (avoid)
   }
-  
+
   return <button onClick={handleClick}>View Profile</button>;
 };
 ```
@@ -388,6 +406,7 @@ function calculateTotal(items: Item[]) {
 ### Container/Presenterパターン
 
 - **Container**:
+
   - データフェッチング
   - ビジネスロジック
   - サーバーアクションの呼び出し
@@ -401,17 +420,17 @@ function calculateTotal(items: Item[]) {
 
 ```tsx
 // Container (UserProfile.tsx)
-import { UserProfilePresenter } from './UserProfile.presenter';
+import { UserProfilePresenter } from "./UserProfile.presenter";
 
 export async function UserProfile({ userId }: { userId: string }) {
   const user = await db.user.findUnique({ where: { id: userId } });
   if (!user) return <div>User not found</div>;
-  
+
   return <UserProfilePresenter user={user} />;
 }
 
 // Presenter (UserProfile.presenter.tsx)
-'use client';
+"use client";
 
 interface UserProfilePresenterProps {
   user: User;
@@ -435,19 +454,19 @@ export function UserProfilePresenter({ user }: UserProfilePresenterProps) {
 
 ```tsx
 // atoms/userAtoms.ts
-import { atom } from 'jotai';
+import { atom } from "jotai";
 
 export const userAtom = atom<User | null>(null);
-export const isLoggedInAtom = atom(get => get(userAtom) !== null);
+export const isLoggedInAtom = atom((get) => get(userAtom) !== null);
 
 // Usage example (Client Component)
-'use client';
-import { useAtom } from 'jotai';
-import { userAtom } from '@/atoms/userAtoms';
+"use client";
+import { useAtom } from "jotai";
+import { userAtom } from "@/atoms/userAtoms";
 
 export function UserStatus() {
   const [user] = useAtom(userAtom);
-  return <div>{user ? `Logged in: ${user.name}` : 'Not logged in'}</div>;
+  return <div>{user ? `Logged in: ${user.name}` : "Not logged in"}</div>;
 }
 ```
 
@@ -459,39 +478,41 @@ export function UserStatus() {
 
 ```tsx
 // Form schema definition
-import { z } from 'zod';
+import { z } from "zod";
 
 export const userFormSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters long' }),
-  email: z.string().email({ message: 'Invalid email address' }),
-  age: z.number().min(18, { message: 'You must be at least 18 years old' }),
+  name: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters long" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  age: z.number().min(18, { message: "You must be at least 18 years old" }),
 });
 
 // Usage in server action
-'use server';
+"use server";
 
-import { conform } from '@conform-to/react';
-import { parse } from '@conform-to/zod';
+import { conform } from "@conform-to/react";
+import { parse } from "@conform-to/zod";
 
 export async function createUser(formData: FormData) {
   const submission = parse(formData, { schema: userFormSchema });
-  
+
   if (!submission.value) {
     return {
-      status: 'error',
+      status: "error",
       errors: submission.error,
     };
   }
-  
+
   try {
     // Database operation
     await db.user.create({ data: submission.value });
-    return { status: 'success' };
+    return { status: "success" };
   } catch (error) {
     return {
-      status: 'error',
+      status: "error",
       errors: {
-        _form: ['Failed to create user. Please try again.'],
+        _form: ["Failed to create user. Please try again."],
       },
     };
   }
@@ -507,10 +528,10 @@ export async function createUser(formData: FormData) {
 
 ```tsx
 // Error handling in form component
-'use client';
+"use client";
 
-import { useForm } from '@conform-to/react';
-import { userFormSchema } from './schema';
+import { useForm } from "@conform-to/react";
+import { userFormSchema } from "./schema";
 
 function UserForm() {
   const [form, fields] = useForm({
@@ -519,7 +540,7 @@ function UserForm() {
       return parse(formData, { schema: userFormSchema });
     },
   });
-  
+
   return (
     <form id={form.id} onSubmit={form.onSubmit}>
       <div>
@@ -529,9 +550,9 @@ function UserForm() {
           <div className="error-message">{fields.name.errors}</div>
         )}
       </div>
-      
+
       {/* Other fields */}
-      
+
       {fields.form.errors && (
         <div className="form-error">
           {fields.form.errors.map((error) => (
@@ -539,7 +560,7 @@ function UserForm() {
           ))}
         </div>
       )}
-      
+
       <button type="submit">Submit</button>
     </form>
   );
@@ -552,9 +573,7 @@ function UserForm() {
 
 ```typescript
 // types/result.ts
-export type Result<T, E> = 
-  | { ok: true; value: T }
-  | { ok: false; error: E };
+export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
 
 export function ok<T>(value: T): Result<T, never> {
   return { ok: true, value };
@@ -565,35 +584,38 @@ export function err<E>(error: E): Result<never, E> {
 }
 
 // Usage example
-import { ok, err, type Result } from '@/types/result';
+import { ok, err, type Result } from "@/types/result";
 
-type ApiError = 
-  | { type: 'network'; message: string } 
-  | { type: 'notFound'; message: string };
+type ApiError =
+  | { type: "network"; message: string }
+  | { type: "notFound"; message: string };
 
 async function fetchData(id: string): Promise<Result<Data, ApiError>> {
   try {
     const response = await fetch(`/api/data/${id}`);
-    
+
     if (!response.ok) {
       if (response.status === 404) {
-        return err({ type: 'notFound', message: 'Resource not found' });
+        return err({ type: "notFound", message: "Resource not found" });
       }
-      return err({ type: 'network', message: `HTTP error: ${response.status}` });
+      return err({
+        type: "network",
+        message: `HTTP error: ${response.status}`,
+      });
     }
-    
+
     const data = await response.json();
     return ok(data);
   } catch (error) {
-    return err({ 
-      type: 'network', 
-      message: error instanceof Error ? error.message : 'Unknown error' 
+    return err({
+      type: "network",
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }
 
 // Processing
-const result = await fetchData('123');
+const result = await fetchData("123");
 if (result.ok) {
   // Process data
   processData(result.value);
@@ -615,13 +637,13 @@ if (result.ok) {
 // Data fetching with caching
 export async function ProductList() {
   // Cached by default
-  const products = await fetch('https://api.example.com/products');
-  
+  const products = await fetch("https://api.example.com/products");
+
   // Cache control
-  const latestProducts = await fetch('https://api.example.com/latest', {
-    next: { revalidate: 60 } // Revalidate cache after 60 seconds
+  const latestProducts = await fetch("https://api.example.com/latest", {
+    next: { revalidate: 60 }, // Revalidate cache after 60 seconds
   });
-  
+
   // ...
 }
 ```
@@ -641,7 +663,7 @@ export const ExpensiveComponent = memo(function ExpensiveComponent({ data }: Pro
   const processedData = useMemo(() => {
     return data.map(item => /* expensive computation */);
   }, [data]);
-  
+
   return <div>{/* rendering */}</div>;
 });
 ```
@@ -653,11 +675,11 @@ export const ExpensiveComponent = memo(function ExpensiveComponent({ data }: Pro
 
 ```tsx
 // Lazy loading
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const DynamicChart = dynamic(() => import('@/components/Chart'), {
+const DynamicChart = dynamic(() => import("@/components/Chart"), {
   loading: () => <p>Loading chart...</p>,
-  ssr: false // Only render on client-side
+  ssr: false, // Only render on client-side
 });
 ```
 
@@ -684,21 +706,21 @@ const DynamicChart = dynamic(() => import('@/components/Chart'), {
 
 ```tsx
 // UserProfile.presenter.test.tsx
-import { render, screen } from '@testing-library/react';
-import { UserProfilePresenter } from './UserProfile.presenter';
+import { render, screen } from "@testing-library/react";
+import { UserProfilePresenter } from "./UserProfile.presenter";
 
-describe('UserProfilePresenter', () => {
-  it('displays user name and email', () => {
+describe("UserProfilePresenter", () => {
+  it("displays user name and email", () => {
     const user = {
-      id: '1',
-      name: 'Test User',
-      email: 'test@example.com',
+      id: "1",
+      name: "Test User",
+      email: "test@example.com",
     };
-    
+
     render(<UserProfilePresenter user={user} />);
-    
-    expect(screen.getByText('Test User')).toBeInTheDocument();
-    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+
+    expect(screen.getByText("Test User")).toBeInTheDocument();
+    expect(screen.getByText("test@example.com")).toBeInTheDocument();
   });
 });
 ```
@@ -708,9 +730,11 @@ describe('UserProfilePresenter', () => {
 サーバーコンポーネントのテストは、主に以下の方法でアプローチします：
 
 1. **Presenterコンポーネントを重点的にテスト**
+
    - UIロジックの大部分はPresenterにあるため、こちらを中心にテスト
 
 2. **Containerコンポーネントのロジックは分離してテスト**
+
    - データ取得ロジックを別関数に抽出し、その関数をテスト
 
 3. **モック化**
@@ -748,7 +772,7 @@ vi.mock('@/lib/db', () => ({
 test('getUserById returns user data', async () => {
   const mockUser = { id: '1', name: 'Test User' };
   db.user.findUnique.mockResolvedValue(mockUser);
-  
+
   const result = await getUserById('1');
   expect(result).toEqual(mockUser);
 });
@@ -760,28 +784,28 @@ test('getUserById returns user data', async () => {
 
 ```typescript
 // lib/actions/updateUser.ts
-'use server';
+"use server";
 
-import { db } from '@/lib/db';
-import { revalidatePath } from 'next/cache';
+import { db } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function updateUser(id: string, data: UserUpdateData) {
   const result = await db.user.update({
     where: { id },
     data,
   });
-  
+
   revalidatePath(`/users/${id}`);
   return result;
 }
 
 // Test
-import { describe, it, expect, vi } from 'vitest';
-import { updateUser } from './updateUser';
-import { db } from '@/lib/db';
-import { revalidatePath } from 'next/cache';
+import { describe, it, expect, vi } from "vitest";
+import { updateUser } from "./updateUser";
+import { db } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 
-vi.mock('@/lib/db', () => ({
+vi.mock("@/lib/db", () => ({
   db: {
     user: {
       update: vi.fn(),
@@ -789,21 +813,21 @@ vi.mock('@/lib/db', () => ({
   },
 }));
 
-vi.mock('next/cache', () => ({
+vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-test('updateUser updates user and revalidates path', async () => {
-  const mockUser = { id: '1', name: 'Updated Name' };
+test("updateUser updates user and revalidates path", async () => {
+  const mockUser = { id: "1", name: "Updated Name" };
   db.user.update.mockResolvedValue(mockUser);
-  
-  const result = await updateUser('1', { name: 'Updated Name' });
-  
+
+  const result = await updateUser("1", { name: "Updated Name" });
+
   expect(db.user.update).toHaveBeenCalledWith({
-    where: { id: '1' },
-    data: { name: 'Updated Name' },
+    where: { id: "1" },
+    data: { name: "Updated Name" },
   });
-  expect(revalidatePath).toHaveBeenCalledWith('/users/1');
+  expect(revalidatePath).toHaveBeenCalledWith("/users/1");
   expect(result).toEqual(mockUser);
 });
 ```
@@ -817,7 +841,7 @@ import { useState } from 'react';
 
 export function ButtonCounterPresenter() {
   const [count, setCount] = useState(0);
-  
+
   return (
     <button onClick={() => setCount(count + 1)}>
       Click count: {count}
@@ -832,13 +856,13 @@ import { ButtonCounterPresenter } from './ButtonCounter.presenter';
 describe('ButtonCounterPresenter', () => {
   it('increments count when clicked', () => {
     render(<ButtonCounterPresenter />);
-    
+
     const button = screen.getByRole('button');
     expect(button).toHaveTextContent('Click count: 0');
-    
+
     fireEvent.click(button);
     expect(button).toHaveTextContent('Click count: 1');
-    
+
     fireEvent.click(button);
     expect(button).toHaveTextContent('Click count: 2');
   });
@@ -909,19 +933,22 @@ bun run quality # Run linter, type check, and tests
 TDDプロセスを補完するための効果的なGitワークフローを採用します：
 
 1. 機能ブランチでの開発
-  ```bash
-  git checkout -b feature/user-authentication
-  ```
+
+```bash
+git checkout -b feature/user-authentication
+```
 
 2. テスト・実装・リファクタリングごとのコミット
-  - テスト追加: `git commit -m "test: Add tests for user authentication"`
-  - 実装: `git commit -m "feat: Implement user authentication"`
-  - リファクタリング: `git commit -m "refactor: Improve authentication logic"`
+
+- テスト追加: `git commit -m "test: Add tests for user authentication"`
+- 実装: `git commit -m "feat: Implement user authentication"`
+- リファクタリング: `git commit -m "refactor: Improve authentication logic"`
 
 3. レビュー前のセルフチェック
-  ```bash
-  bun run quality # Run linter, type check, and tests
-  ```
+
+```bash
+bun run quality # Run linter, type check, and tests
+```
 
 4. プルリクエストの作成とレビュー
 
